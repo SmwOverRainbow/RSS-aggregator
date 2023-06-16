@@ -1,0 +1,39 @@
+{
+  "name": "@hexlet/code",
+  "version": "1.0.0",
+  "description": "third_training_project",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "webpack",
+    "start": "webpack serve"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SmwOverRainbow/frontend-project-11.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SmwOverRainbow/frontend-project-11/issues"
+  },
+  "homepage": "https://github.com/SmwOverRainbow/frontend-project-11#readme",
+  "dependencies": {
+    "bootstrap": "^5.3.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "html-webpack-plugin": "^5.5.3",
+    "webpack": "^5.87.0",
+    "webpack-dev-server": "^4.15.1"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.14",
+    "css-loader": "^6.8.1",
+    "eslint": "^8.40.0",
+    "postcss-loader": "^7.3.3",
+    "sass": "^1.63.4",
+    "sass-loader": "^13.3.2",
+    "style-loader": "^3.3.3",
+    "webpack-cli": "^5.1.4"
+  }
+}
