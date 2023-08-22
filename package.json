@@ -23,8 +23,11 @@
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.27.5",
     "html-webpack-plugin": "^5.5.3",
+    "lodash": "^4.17.21",
+    "on-change": "^4.0.2",
     "webpack": "^5.87.0",
-    "webpack-dev-server": "^4.15.1"
+    "webpack-dev-server": "^4.15.1",
+    "yup": "^1.2.0"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.14",
