@@ -6,14 +6,14 @@ import onChange from 'on-change';
 // import has from 'lodash/has.js';
 // import isEmpty from 'lodash/isEmpty.js';
 
-// const validateLink = (link) => {
-//   try {
-//     schema.validate(link);
-//     return {};
-//   } catch (e) {
-//     // return keyBy(e.inner, 'path');
-//   }
-// };
+yup.setLocale({
+	mixed: {
+    default: 'RSS уже существует',
+  },
+  string: {
+    url: 'Ссылка должна быть валидным URL',
+  },
+});
 
 const state = {
 	rssForm: {
@@ -29,7 +29,7 @@ const state = {
 	feedRss: [],
 };
 
-const schema = yup.string().url().notOneOf(state.feedRss);
+const schema = yup.mixed().url().notOneOf(state.feedRss);
 
 const form = document.querySelector('.rss-form');
 const input = document.getElementById('url-input');
@@ -42,7 +42,7 @@ const watchedState = onChange(state, (path, value) => {
 			feedbackEl.classList.add('text-danger');
 		} else {
 			input.classList.remove('is-invalid');
-			feedbackEl.classList.remove('text-danger');
+			feedbackEl.classList.remove('text-danger').add('text-success');
 		}
 		feedbackEl.textContent = state.rssForm.data.feedback;
 	}
@@ -53,13 +53,15 @@ form.addEventListener('submit', (e) => {
 	const currentLink = input.value;
 	state.rssForm.data.link = currentLink;
 
-	schema.validate(currentLink, { abortEarly: true }).then(() => {
+	schema.validate(currentLink).then(() => {
 		state.rssForm.data.feedback = 'RSS успешно загружен';
 		state.feedRss.push(currentLink);
 		watchedState.rssForm.dataStatus.link = 'valid';
+		// здесь будет запрос на сервер и возврат промиса от axios
 	}).then(() => {
 		input.value = '';
 		input.focus();
+		// данные из ответа помещаем в стейт и вызыается отрисовка фида данных
 	}).catch((e) => {
 		if (e instanceof yup.ValidationError) {
 			const [error] = e.errors;
