@@ -30,7 +30,7 @@ export default () => {
 		feedRss: [],
   };
 
-	const schema = yup.url().notOneOf(state.feedRss);
+	const schema = yup.string().url().notOneOf(state.feedRss);
 
 	const form = document.querySelector('.rss-form');
 	const input = document.getElementById('url-input');
@@ -56,6 +56,7 @@ export default () => {
 
 		schema.validate(currentLink, { abortEarly: true }).then(() => {
 			state.rssForm.data.feedback = 'RSS успешно загружен';
+			state.feedRss.push(currentLink);
 			watchedState.rssForm.dataStatus.link = 'valid';
 		}).then(() => {
 			input.value = '';
