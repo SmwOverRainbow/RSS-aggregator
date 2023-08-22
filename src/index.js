@@ -7,11 +7,10 @@ import onChange from 'on-change';
 // import isEmpty from 'lodash/isEmpty.js';
 
 yup.setLocale({
-	mixed: {
-    default: 'RSS уже существует',
-  },
   string: {
+		default: '',
     url: 'Ссылка должна быть валидным URL',
+		notOneOf: 'RSS уже существует',
   },
 });
 
@@ -42,7 +41,8 @@ const watchedState = onChange(state, (path, value) => {
 			feedbackEl.classList.add('text-danger');
 		} else {
 			input.classList.remove('is-invalid');
-			feedbackEl.classList.remove('text-danger').add('text-success');
+			feedbackEl.classList.remove('text-danger');
+			feedbackEl.classList.add('text-success');
 		}
 		feedbackEl.textContent = state.rssForm.data.feedback;
 	}
