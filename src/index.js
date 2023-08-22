@@ -29,7 +29,7 @@ const state = {
 	feedRss: [],
 };
 
-const schema = yup.mixed().url().notOneOf(state.feedRss);
+const schema = yup.string().url().notOneOf(state.feedRss);
 
 const form = document.querySelector('.rss-form');
 const input = document.getElementById('url-input');
