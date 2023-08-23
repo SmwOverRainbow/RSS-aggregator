@@ -72,7 +72,9 @@ form.addEventListener('submit', (e) => {
 
 	schema.validate(currentLink).then(() => {
 		state.rssForm.data.feedback = 'success';
+		console.log('before push', state.feedRss);
 		state.feedRss.push(currentLink);
+		console.log('after push', state.feedRss);
 		watchedState.rssForm.dataStatus.link = 'valid';
 		// здесь будет запрос на сервер и возврат промиса от axios
 	}).then(() => {
