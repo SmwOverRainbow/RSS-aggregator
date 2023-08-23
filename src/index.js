@@ -2,16 +2,33 @@ import './scss/styles.scss';
 // import * as bootstrap from 'bootstrap';
 import * as yup from 'yup';
 import onChange from 'on-change';
+import i18next from 'i18next';
+
 // import keyBy from 'lodash/keyBy.js';
 // import has from 'lodash/has.js';
 // import isEmpty from 'lodash/isEmpty.js';
 
 yup.setLocale({
   string: {
-		default: '',
-    url: 'Ссылка должна быть валидным URL',
-		notOneOf: 'RSS уже существует',
+		default: 'error',
+    url: 'url_error',
+		notOneOf: 'notOneOf_error',
   },
+});
+
+i18next.init({
+  lng: 'ru',
+  debug: true,
+  resources: {
+    ru: {
+      translation: {
+        error: 'Ошибка',
+				url_error: 'Ссылка должна быть валидным URL',
+				notOneOf_error: 'RSS уже существует',
+				success: 'RSS успешно загружен',
+      }
+    }
+  }
 });
 
 const state = {
@@ -28,7 +45,7 @@ const state = {
 	feedRss: [],
 };
 
-const schema = yup.string().url().notOneOf(state.feedRss);
+const schema = yup.string().url() | yup.notOneOf(state.feedRss);
 
 const form = document.querySelector('.rss-form');
 const input = document.getElementById('url-input');
@@ -44,7 +61,7 @@ const watchedState = onChange(state, (path, value) => {
 			feedbackEl.classList.remove('text-danger');
 			feedbackEl.classList.add('text-success');
 		}
-		feedbackEl.textContent = state.rssForm.data.feedback;
+		feedbackEl.textContent = i18next.t(state.rssForm.data.feedback);
 	}
 });
 
@@ -54,7 +71,7 @@ form.addEventListener('submit', (e) => {
 	state.rssForm.data.link = currentLink;
 
 	schema.validate(currentLink).then(() => {
-		state.rssForm.data.feedback = 'RSS успешно загружен';
+		state.rssForm.data.feedback = 'success';
 		state.feedRss.push(currentLink);
 		watchedState.rssForm.dataStatus.link = 'valid';
 		// здесь будет запрос на сервер и возврат промиса от axios
