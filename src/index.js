@@ -5,7 +5,7 @@ import onChange from 'on-change';
 import i18next from 'i18next';
 import axios from 'axios';
 import uniqueId from 'lodash';
-import buildFeeds from './view';
+import { buildFeeds, buildPosts } from './view.js';
 
 // import keyBy from 'lodash/keyBy.js';
 // import has from 'lodash/has.js';
@@ -51,7 +51,7 @@ i18next.init({
       translation: {
         defaultErr: 'Ошибка',
 				mustBeUrl: 'Ссылка должна быть валидным URL',
-				notEmpty: 'Не должно быть пустым',
+				empty: 'Не должно быть пустым',
 				alreadyExist: 'RSS уже существует',
 				success: 'RSS успешно загружен',
       }
@@ -79,7 +79,7 @@ const form = document.querySelector('.rss-form');
 const input = document.getElementById('url-input');
 const feedbackEl = document.querySelector('.feedback');
 
-// Разделить вотчеры по областям стейта (а не на весь стейт вешать) !!! <----
+// Разделить вотчеры по областям стейта (а не на весь стейт вешать) !!! <----  ?
 // сделать отрисовщики на каждый "слой" стейта, импортировать сюда, через switch/case решить какой отрисовщик нужен
 
 const watchedState = onChange(state, (path, value) => {
@@ -99,7 +99,9 @@ const watchedState = onChange(state, (path, value) => {
 	if (path === 'feeds') {
 		buildFeeds(state.feeds);
 	}
-	// if (path === 'posts') {}
+	if (path === 'posts') {
+		buildPosts(state.posts);
+	}
 });
 
 form.addEventListener('submit', (e) => {
@@ -108,17 +110,13 @@ form.addEventListener('submit', (e) => {
 	state.rssForm.data.link = currentLink;
 
 	const schema = yup.string().url().notOneOf(state.rssLinks);
-
 	schema.validate(currentLink, { abortEarly: true })
-
 	.then(() => {
 		state.rssLinks.push(currentLink);
 		watchedState.rssForm.data.feedback = 'success';
 		watchedState.rssForm.dataStatus.link = 'valid';
 
 		const corsUrl = `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(currentLink)}`;
-		console.log(corsUrl);
-
 		const response = axios.get(corsUrl);
 		return response;
 	})
@@ -137,7 +135,6 @@ form.addEventListener('submit', (e) => {
 			throw err;
 		}
 
-		// тут должна быть функция парсинга из xml документа в массив объектов (?)
 		const dataDoc = getDataFromDoc(parsedDoc);
 		watchedState.feeds = [dataDoc.feed, ...watchedState.feeds];
 		watchedState.posts = dataDoc.posts;
@@ -149,9 +146,9 @@ form.addEventListener('submit', (e) => {
 			watchedState.rssForm.data.feedback = error;
 			watchedState.rssForm.dataStatus.link = 'invalid';
 		} else if (e.name === 'ParseError') {
-			watchedState.rssForm.data.feedback = 'notEmpty';
+			watchedState.rssForm.data.feedback = 'empty';
 			watchedState.rssForm.dataStatus.link = 'invalid';
 		}
-		// console.log(e);
+		// Прописать ошибки сети !!!!
 	});
 });
