@@ -113,14 +113,14 @@ form.addEventListener('submit', (e) => {
 	schema.validate(currentLink, { abortEarly: true })
 	.then(() => {
 		state.rssLinks.push(currentLink);
-		watchedState.rssForm.data.feedback = 'success';
-		watchedState.rssForm.dataStatus.link = 'valid';
 
 		const corsUrl = `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(currentLink)}`;
 		const response = axios.get(corsUrl);
 		return response;
 	})
 	.then((response) => {
+		watchedState.rssForm.data.feedback = 'success';
+		watchedState.rssForm.dataStatus.link = 'valid';
 		input.value = '';
 		input.focus();
 
@@ -137,8 +137,7 @@ form.addEventListener('submit', (e) => {
 
 		const dataDoc = getDataFromDoc(parsedDoc);
 		watchedState.feeds = [dataDoc.feed, ...watchedState.feeds];
-		watchedState.posts = dataDoc.posts;
-		// данные из ответа помещаем в стейт и вызыается отрисовка фида данных
+		watchedState.posts = [...dataDoc.posts, ...watchedState.posts];
 	})
 	.catch((e) => {
 		if (e instanceof yup.ValidationError){
