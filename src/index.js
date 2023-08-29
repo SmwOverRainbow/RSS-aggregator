@@ -3,34 +3,37 @@ import './scss/styles.scss';
 import * as yup from 'yup';
 import onChange from 'on-change';
 import i18next from 'i18next';
-import axios from 'axios';
-import uniqueId from 'lodash';
-import { buildFeeds, buildPosts } from './view.js';
+import axios, { AxiosError } from 'axios';
+// import uniqueId from 'lodash';
+import { buildFeeds, buildPosts, buildModal } from './view.js';
+import { getDataFromDoc } from './utils.js';
 
-// import keyBy from 'lodash/keyBy.js';
-// import has from 'lodash/has.js';
-// import isEmpty from 'lodash/isEmpty.js';
+const updateRSS = (url) => {
+	axios.get(url)
+		.then((resp) => {
+			const parser = new DOMParser();
+			const parsedDoc = parser.parseFromString(resp.data.contents, 'application/xml');
+			const parsererror = parsedDoc.querySelector('parsererror');
 
-const getDataFromDoc = (doc) => {
-	const result = {
-		feed: {},
-		posts: [],
-	};
+			if (parsererror) {
+				const err = new Error('Document is empty');
+				err.name = 'ParseError';
+				throw err;
+			}
 
-	result.feed.title = doc.querySelector('channel > title').textContent;
-	result.feed.description = doc.querySelector('channel > description').textContent;
-	result.feed.id = uniqueId('feed_');
+			const dataDoc = getDataFromDoc(parsedDoc);
+			const postsStateIds = state.posts.map((element) => element.id);
+			const newPosts = dataDoc.posts.filter((el) => !postsStateIds.includes(el.id));
 
-	const items = Array.from(doc.querySelectorAll('channel > item'));
-	result.posts = items.map((el) => {
-		const title = el.querySelector('title').textContent;
-		const link = el.querySelector('link').textContent;
-		const description = el.querySelector('description').textContent;
-		const id = uniqueId('post_');
-		return { title, link, description, id };
-	});
+			watchedState.posts = [...newPosts, ...watchedState.posts];
 
-	return result;
+			setTimeout(() => updateRSS(url), 5000);
+		})
+		.catch((e) => {
+			console.error(e);
+			throw e;
+		})
+	;
 };
 
 yup.setLocale({
@@ -54,6 +57,7 @@ i18next.init({
 				empty: 'Не должно быть пустым',
 				alreadyExist: 'RSS уже существует',
 				success: 'RSS успешно загружен',
+				networkErr: 'Ошибка сети',
       }
     }
   }
@@ -61,7 +65,7 @@ i18next.init({
 
 const state = {
 	rssForm: {
-		// status: 'valid',
+		status: '',
 		data: {
 			link: '',
 			feedback: '',
@@ -73,14 +77,36 @@ const state = {
 	rssLinks: [],
 	feeds: [],
 	posts: [],
+	visitedLinksIds: [],
+	modal: {
+		modalID: '',
+		status: false,
+	},
 };
 
 const form = document.querySelector('.rss-form');
 const input = document.getElementById('url-input');
 const feedbackEl = document.querySelector('.feedback');
+const submitBtn = form.querySelector('button');
+const body = document.querySelector('body');
+const closeBtnsModal = document.querySelectorAll('.modal button');
 
-// Разделить вотчеры по областям стейта (а не на весь стейт вешать) !!! <----  ?
-// сделать отрисовщики на каждый "слой" стейта, импортировать сюда, через switch/case решить какой отрисовщик нужен
+const handleButtonClick = (el) => {
+	const currentId = el.dataset.id;
+	watchedState.modal.status = 'true';
+	watchedState.modal.modalID = currentId;
+};
+
+const handleLinkClick = (element) => {
+	element.classList.remove('fw-bold');
+	element.classList.add('fw-normal', 'link-secondary');
+	const currentId = element.dataset.id;
+	if (!watchedState.visitedLinksIds.includes(currentId)) {
+		watchedState.visitedLinksIds.push(currentId);
+	}
+};
+
+// через switch/case решить какой отрисовщик нужен
 
 const watchedState = onChange(state, (path, value) => {
 	if (path === 'rssForm.dataStatus.link') {
@@ -100,7 +126,40 @@ const watchedState = onChange(state, (path, value) => {
 		buildFeeds(state.feeds);
 	}
 	if (path === 'posts') {
-		buildPosts(state.posts);
+		buildPosts(state.posts, state.visitedLinksIds);
+		const modalButtons = document.querySelectorAll('.btn-sm');
+		modalButtons.forEach((button) => {
+			button.addEventListener('click', () => handleButtonClick(button));
+		});
+
+		const linksPosts = document.querySelectorAll('.posts a');
+		linksPosts.forEach((link) => {
+			link.addEventListener('click', () => handleLinkClick(link));
+		});
+	}
+	if (path === 'rssForm.status') {
+		if (value === 'pending') {
+			input.setAttribute('readonly', 'true');
+			submitBtn.setAttribute('disabled', 'true');
+		} else {
+			input.removeAttribute('readonly');
+			submitBtn.removeAttribute('disabled');
+		}
+	}
+	if (path === 'modal.status') {
+		if (state.modal.status === 'true') {
+			body.classList.add('modal-open');
+		} else {
+			body.classList.remove('modal-open');
+			const modalContainer = document.getElementById('modal');
+			modalContainer.classList.remove('show');
+			modalContainer.removeAttribute('style');
+			modalContainer.removeAttribute('aria-modal');
+			modalContainer.setAttribute('aria-hidden', 'true');
+		}
+	}
+	if (path === 'modal.modalID') {
+		buildModal(state.modal.modalID, state.posts, state.visitedLinksIds);
 	}
 });
 
@@ -108,19 +167,21 @@ form.addEventListener('submit', (e) => {
 	e.preventDefault();
 	const currentLink = input.value;
 	state.rssForm.data.link = currentLink;
+	const corsUrl = `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(currentLink)}`;
 
 	const schema = yup.string().url().notOneOf(state.rssLinks);
 	schema.validate(currentLink, { abortEarly: true })
 	.then(() => {
 		state.rssLinks.push(currentLink);
 
-		const corsUrl = `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(currentLink)}`;
 		const response = axios.get(corsUrl);
+		watchedState.rssForm.status = 'pending';
 		return response;
 	})
 	.then((response) => {
 		watchedState.rssForm.data.feedback = 'success';
 		watchedState.rssForm.dataStatus.link = 'valid';
+		watchedState.rssForm.status = 'ok';
 		input.value = '';
 		input.focus();
 
@@ -138,8 +199,11 @@ form.addEventListener('submit', (e) => {
 		const dataDoc = getDataFromDoc(parsedDoc);
 		watchedState.feeds = [dataDoc.feed, ...watchedState.feeds];
 		watchedState.posts = [...dataDoc.posts, ...watchedState.posts];
+
+		setTimeout(() => updateRSS(corsUrl), 5000);
 	})
 	.catch((e) => {
+		watchedState.rssForm.status = 'error';
 		if (e instanceof yup.ValidationError){
 			const [error] = e.errors;
 			watchedState.rssForm.data.feedback = error;
@@ -147,7 +211,20 @@ form.addEventListener('submit', (e) => {
 		} else if (e.name === 'ParseError') {
 			watchedState.rssForm.data.feedback = 'empty';
 			watchedState.rssForm.dataStatus.link = 'invalid';
+		} else if (e instanceof AxiosError) {
+			watchedState.rssForm.data.feedback = 'networkErr';
+			watchedState.rssForm.dataStatus.link = 'invalid';
+		} else {
+			console.error(e);
+			watchedState.rssForm.data.feedback = 'defaultErr';
+			watchedState.rssForm.dataStatus.link = 'invalid';
 		}
-		// Прописать ошибки сети !!!!
+		// Прописать ошибки сети !
+	});
+
+	closeBtnsModal.forEach((button) => {
+		button.addEventListener('click', () => {
+			watchedState.modal.status = 'false';
+		});
 	});
 });

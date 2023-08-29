@@ -24,7 +24,7 @@ const buildFeeds = (arrFeeds) => {
 	});
 };
 
-const buildPosts = (arrPosts) => {
+const buildPosts = (arrPosts, arrVisitedLinks) => {
 	const postsContainer = document.querySelector('div.posts');
 	postsContainer.innerHTML = `<div class="card border-0">
     <div class="card-body">
@@ -40,7 +40,11 @@ const buildPosts = (arrPosts) => {
 		const li = document.createElement('li');
 		li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
 		const a = document.createElement('a');
-		a.classList.add('fw-bold');
+    if (arrVisitedLinks.includes(id)) {
+      a.classList.add('fw-normal', 'link-secondary');
+    } else {
+      a.classList.add('fw-bold');
+    }
 		a.setAttribute('href', link);
 		a.setAttribute('data-id', id);
 		a.setAttribute('target', '_blank');
@@ -59,4 +63,30 @@ const buildPosts = (arrPosts) => {
 	});
 };
 
-export { buildFeeds, buildPosts };
+const getFormatVisitedLink = (id) => {
+  const linkPost = document.querySelector(`[data-id="${id}"]`);
+  linkPost.classList.remove('fw-bold');
+  linkPost.classList.add('fw-normal', 'link-secondary');
+};
+
+const buildModal = (modId, arrPosts, arrVisitedLinksIds) => {
+	const [{ title, link, description, id }] = arrPosts.filter((el) => el.id === modId);
+  getFormatVisitedLink(id);
+  if (!arrVisitedLinksIds.includes(id)) {
+    arrVisitedLinksIds.push(id);
+  }
+	const modalContainer = document.getElementById('modal');
+	modalContainer.classList.add('show');
+	modalContainer.setAttribute('style', 'display: block;');
+  modalContainer.removeAttribute('aria-hidden');
+  modalContainer.setAttribute('aria-modal', 'true');
+
+	const modalTitle = modalContainer.querySelector('.modal-title');
+  modalTitle.textContent = title;
+  const modalBody = modalContainer.querySelector('.modal-body');
+  modalBody.textContent = description;
+  const modalLink = modalContainer.querySelector('.full-article');
+  modalLink.setAttribute('href', link);
+};
+
+export { buildFeeds, buildPosts, buildModal };
