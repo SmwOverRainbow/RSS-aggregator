@@ -16,7 +16,12 @@ const getDataFromDoc = (doc) => {
     const link = el.querySelector('link').textContent;
     const description = el.querySelector('description').textContent;
     const id = el.querySelector('guid').textContent.toString();
-    const post = { title, link, description, id };
+    const post = {
+      title,
+      link,
+      description,
+      id,
+    };
     return post;
   });
 
@@ -47,8 +52,7 @@ const updateRSS = (url, state) => {
     .catch((e) => {
       console.error(e);
       throw e;
-    })
-  ;
+    });
 };
 
 export { getDataFromDoc, updateRSS };

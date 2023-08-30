@@ -65,21 +65,6 @@ const submitBtn = form.querySelector('button');
 const body = document.querySelector('body');
 const closeBtnsModal = document.querySelectorAll('.modal button');
 
-const handleButtonClick = (el) => {
-  const currentId = el.dataset.id;
-  watchedState.modal.status = 'true';
-  watchedState.modal.modalID = currentId;
-};
-
-const handleLinkClick = (element) => {
-  element.classList.remove('fw-bold');
-  element.classList.add('fw-normal', 'link-secondary');
-  const currentId = element.dataset.id;
-  if (!watchedState.visitedLinksIds.includes(currentId)) {
-    watchedState.visitedLinksIds.push(currentId);
-  }
-};
-
 const watchedState = onChange(state, (path, value) => {
   if (path === 'rssForm.dataStatus.link') {
     if (value === 'invalid') {
@@ -134,6 +119,21 @@ const watchedState = onChange(state, (path, value) => {
     buildModal(state.modal.modalID, state.posts, state.visitedLinksIds);
   }
 });
+
+const handleButtonClick = (el) => {
+  const currentId = el.dataset.id;
+  watchedState.modal.status = 'true';
+  watchedState.modal.modalID = currentId;
+};
+
+const handleLinkClick = (element) => {
+  element.classList.remove('fw-bold');
+  element.classList.add('fw-normal', 'link-secondary');
+  const currentId = element.dataset.id;
+  if (!watchedState.visitedLinksIds.includes(currentId)) {
+    watchedState.visitedLinksIds.push(currentId);
+  }
+};
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();
