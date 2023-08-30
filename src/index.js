@@ -4,7 +4,6 @@ import * as yup from 'yup';
 import onChange from 'on-change';
 import i18next from 'i18next';
 import axios, { AxiosError } from 'axios';
-// import uniqueId from 'lodash';
 import { buildFeeds, buildPosts, buildModal } from './view.js';
 import { getDataFromDoc } from './utils.js';
 
@@ -105,8 +104,6 @@ const handleLinkClick = (element) => {
 		watchedState.visitedLinksIds.push(currentId);
 	}
 };
-
-// через switch/case решить какой отрисовщик нужен
 
 const watchedState = onChange(state, (path, value) => {
 	if (path === 'rssForm.dataStatus.link') {
@@ -219,7 +216,6 @@ form.addEventListener('submit', (e) => {
 			watchedState.rssForm.data.feedback = 'defaultErr';
 			watchedState.rssForm.dataStatus.link = 'invalid';
 		}
-		// Прописать ошибки сети !
 	});
 
 	closeBtnsModal.forEach((button) => {
