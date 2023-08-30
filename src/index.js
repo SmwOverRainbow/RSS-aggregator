@@ -170,7 +170,6 @@ form.addEventListener('submit', (e) => {
 	schema.validate(currentLink, { abortEarly: true })
 	.then(() => {
 		state.rssLinks.push(currentLink);
-
 		const response = axios.get(corsUrl);
 		watchedState.rssForm.status = 'pending';
 		return response;
