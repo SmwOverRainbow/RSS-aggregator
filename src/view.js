@@ -1,66 +1,66 @@
 const buildFeeds = (arrFeeds) => {
-	const feedsContainer = document.querySelector('div.feeds');
-	feedsContainer.innerHTML = `<div class="card border-0">
-			<div class="card-body">
-				<h2 class="card-title h4">Фиды</h2>
-			</div>
-			<ul class="list-group border-0 rounded-0">
-			</ul>
-		</div>`;
+  const feedsContainer = document.querySelector('div.feeds');
+  feedsContainer.innerHTML = `<div class="card border-0">
+      <div class="card-body">
+        <h2 class="card-title h4">Фиды</h2>
+      </div>
+      <ul class="list-group border-0 rounded-0">
+      </ul>
+    </div>`;
 
   const list = feedsContainer.querySelector('.list-group');
   arrFeeds.forEach(({ title, description }) => {
-		const li = document.createElement('li');
-		li.classList.add('list-group-item', 'border-0', 'border-end-0');
-		const h3 = document.createElement('h3');
-		h3.classList.add('h6', 'm-0');
-		h3.textContent = title;
-		const p = document.createElement('p');
-		p.classList.add('m-0', 'small', 'text-black-50');
-		p.textContent = description;
-		li.append(h3);
-		li.append(p);
-		list.append(li);
-	});
+    const li = document.createElement('li');
+    li.classList.add('list-group-item', 'border-0', 'border-end-0');
+    const h3 = document.createElement('h3');
+    h3.classList.add('h6', 'm-0');
+    h3.textContent = title;
+    const p = document.createElement('p');
+    p.classList.add('m-0', 'small', 'text-black-50');
+    p.textContent = description;
+    li.append(h3);
+    li.append(p);
+    list.append(li);
+  });
 };
 
 const buildPosts = (arrPosts, arrVisitedLinks) => {
-	const postsContainer = document.querySelector('div.posts');
-	postsContainer.innerHTML = `<div class="card border-0">
+  const postsContainer = document.querySelector('div.posts');
+  postsContainer.innerHTML = `<div class="card border-0">
     <div class="card-body">
       <h2 class="card-title h4">Посты</h2>
     </div>
     <ul class="list-group border-0 rounded-0">
-		</ul>
-	</div>`;
+    </ul>
+  </div>`;
 
-	const list = postsContainer.querySelector('.list-group');
+  const list = postsContainer.querySelector('.list-group');
   arrPosts.forEach(({ title, link, description, id }) => {
-		console.log(title, link, description);
-		const li = document.createElement('li');
-		li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
-		const a = document.createElement('a');
+    console.log(title, link, description);
+    const li = document.createElement('li');
+    li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+    const a = document.createElement('a');
     if (arrVisitedLinks.includes(id)) {
       a.classList.add('fw-normal', 'link-secondary');
     } else {
       a.classList.add('fw-bold');
     }
-		a.setAttribute('href', link);
-		a.setAttribute('data-id', id);
-		a.setAttribute('target', '_blank');
-		a.setAttribute('rel', 'noopener noreferrer');
-		a.textContent = title;
-		const button = document.createElement('button');
-		button.setAttribute('type', 'button');
-		button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-		button.setAttribute('data-id', id);
-		button.setAttribute('data-bs-toggle', 'modal');
-		button.setAttribute('data-bs-target', '#modal');
-		button.textContent = 'Просмотр';
-		li.append(a);
-		li.append(button);
-		list.append(li);
-	});
+    a.setAttribute('href', link);
+    a.setAttribute('data-id', id);
+    a.setAttribute('target', '_blank');
+    a.setAttribute('rel', 'noopener noreferrer');
+    a.textContent = title;
+    const button = document.createElement('button');
+    button.setAttribute('type', 'button');
+    button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+    button.setAttribute('data-id', id);
+    button.setAttribute('data-bs-toggle', 'modal');
+    button.setAttribute('data-bs-target', '#modal');
+    button.textContent = 'Просмотр';
+    li.append(a);
+    li.append(button);
+    list.append(li);
+  });
 };
 
 const getFormatVisitedLink = (id) => {
@@ -70,18 +70,18 @@ const getFormatVisitedLink = (id) => {
 };
 
 const buildModal = (modId, arrPosts, arrVisitedLinksIds) => {
-	const [{ title, link, description, id }] = arrPosts.filter((el) => el.id === modId);
+  const [{ title, link, description, id }] = arrPosts.filter((el) => el.id === modId);
   getFormatVisitedLink(id);
   if (!arrVisitedLinksIds.includes(id)) {
     arrVisitedLinksIds.push(id);
   }
-	const modalContainer = document.getElementById('modal');
-	modalContainer.classList.add('show');
-	modalContainer.setAttribute('style', 'display: block;');
+  const modalContainer = document.getElementById('modal');
+  modalContainer.classList.add('show');
+  modalContainer.setAttribute('style', 'display: block;');
   modalContainer.removeAttribute('aria-hidden');
   modalContainer.setAttribute('aria-modal', 'true');
 
-	const modalTitle = modalContainer.querySelector('.modal-title');
+  const modalTitle = modalContainer.querySelector('.modal-title');
   modalTitle.textContent = title;
   const modalBody = modalContainer.querySelector('.modal-body');
   modalBody.textContent = description;
