@@ -39,6 +39,8 @@ yup.setLocale({
   string: {
 		default: 'defaultErr',
     url: 'mustBeUrl',
+		required: 'mustBeFilled',
+		
   },
 	mixed: {
 		notOneOf: 'alreadyExist',
@@ -53,7 +55,8 @@ i18next.init({
       translation: {
         defaultErr: 'Ошибка',
 				mustBeUrl: 'Ссылка должна быть валидным URL',
-				empty: 'Не должно быть пустым',
+				emptyDoc: 'Ресурс не содержит валидный RSS',
+				mustBeFilled: 'Не должно быть пустым',
 				alreadyExist: 'RSS уже существует',
 				success: 'RSS успешно загружен',
 				networkErr: 'Ошибка сети',
@@ -166,7 +169,7 @@ form.addEventListener('submit', (e) => {
 	state.rssForm.data.link = currentLink;
 	const corsUrl = `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(currentLink)}`;
 
-	const schema = yup.string().url().notOneOf(state.rssLinks);
+	const schema = yup.string().required().url().notOneOf(state.rssLinks);
 	schema.validate(currentLink, { abortEarly: true })
 	.then(() => {
 		state.rssLinks.push(currentLink);
@@ -205,7 +208,7 @@ form.addEventListener('submit', (e) => {
 			watchedState.rssForm.data.feedback = error;
 			watchedState.rssForm.dataStatus.link = 'invalid';
 		} else if (e.name === 'ParseError') {
-			watchedState.rssForm.data.feedback = 'empty';
+			watchedState.rssForm.data.feedback = 'emptyDoc';
 			watchedState.rssForm.dataStatus.link = 'invalid';
 		} else if (e instanceof AxiosError) {
 			watchedState.rssForm.data.feedback = 'networkErr';
