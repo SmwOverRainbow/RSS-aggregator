@@ -5,35 +5,7 @@ import onChange from 'on-change';
 import i18next from 'i18next';
 import axios, { AxiosError } from 'axios';
 import { buildFeeds, buildPosts, buildModal } from './view.js';
-import { getDataFromDoc } from './utils.js';
-
-const updateRSS = (url) => {
-  axios.get(url)
-    .then((resp) => {
-      const parser = new DOMParser();
-      const parsedDoc = parser.parseFromString(resp.data.contents, 'application/xml');
-      const parsererror = parsedDoc.querySelector('parsererror');
-
-      if (parsererror) {
-        const err = new Error('Document is empty');
-        err.name = 'ParseError';
-        throw err;
-      }
-
-      const dataDoc = getDataFromDoc(parsedDoc);
-      const postsStateIds = state.posts.map((element) => element.id);
-      const newPosts = dataDoc.posts.filter((el) => !postsStateIds.includes(el.id));
-
-      watchedState.posts = [...newPosts, ...watchedState.posts];
-
-      setTimeout(() => updateRSS(url), 5000);
-    })
-    .catch((e) => {
-      console.error(e);
-      throw e;
-    })
-  ;
-};
+import { getDataFromDoc, updateRSS } from './utils.js';
 
 yup.setLocale({
   string: {
@@ -163,62 +135,62 @@ const watchedState = onChange(state, (path, value) => {
   }
 });
 
-form.addEventListener('submit', (e) => {
-  e.preventDefault();
+form.addEventListener('submit', (event) => {
+  event.preventDefault();
   const currentLink = input.value;
   state.rssForm.data.link = currentLink;
   const corsUrl = `https://allorigins.hexlet.app/get?disableCache=true&url=${encodeURIComponent(currentLink)}`;
 
   const schema = yup.string().required().url().notOneOf(state.rssLinks);
   schema.validate(currentLink, { abortEarly: true })
-  .then(() => {
-    state.rssLinks.push(currentLink);
-    const response = axios.get(corsUrl);
-    watchedState.rssForm.status = 'pending';
-    return response;
-  })
-  .then((response) => {
-    watchedState.rssForm.data.feedback = 'success';
-    watchedState.rssForm.dataStatus.link = 'valid';
-    watchedState.rssForm.status = 'ok';
-    input.value = '';
-    input.focus();
+    .then(() => {
+      state.rssLinks.push(currentLink);
+      const response = axios.get(corsUrl);
+      watchedState.rssForm.status = 'pending';
+      return response;
+    })
+    .then((response) => {
+      watchedState.rssForm.data.feedback = 'success';
+      watchedState.rssForm.dataStatus.link = 'valid';
+      watchedState.rssForm.status = 'ok';
+      input.value = '';
+      input.focus();
 
-    const parser = new DOMParser();
-    const parsedDoc = parser.parseFromString(response.data.contents, 'application/xml');
-    console.log(parsedDoc);
-    const parsererror = parsedDoc.querySelector('parsererror');
+      const parser = new DOMParser();
+      const parsedDoc = parser.parseFromString(response.data.contents, 'application/xml');
+      console.log(parsedDoc);
+      const parsererror = parsedDoc.querySelector('parsererror');
 
-    if (parsererror) {
-      const err = new Error('Document is empty');
-      err.name = 'ParseError';
-      throw err;
-    }
+      if (parsererror) {
+        const err = new Error('Document is empty');
+        err.name = 'ParseError';
+        throw err;
+      }
 
-    const dataDoc = getDataFromDoc(parsedDoc);
-    watchedState.feeds = [dataDoc.feed, ...watchedState.feeds];
-    watchedState.posts = [...dataDoc.posts, ...watchedState.posts];
+      const dataDoc = getDataFromDoc(parsedDoc);
+      watchedState.feeds = [dataDoc.feed, ...watchedState.feeds];
+      watchedState.posts = [...dataDoc.posts, ...watchedState.posts];
 
-    setTimeout(() => updateRSS(corsUrl), 5000);
-  })
-  .catch((e) => {
-    watchedState.rssForm.status = 'error';
-    if (e instanceof yup.ValidationError){
-      const [error] = e.errors;
-      watchedState.rssForm.data.feedback = error;
-      watchedState.rssForm.dataStatus.link = 'invalid';
-    } else if (e.name === 'ParseError') {
-      watchedState.rssForm.data.feedback = 'emptyDoc';
-      watchedState.rssForm.dataStatus.link = 'invalid';
-    } else if (e instanceof AxiosError) {
-      watchedState.rssForm.data.feedback = 'networkErr';
-      watchedState.rssForm.dataStatus.link = 'invalid';
-    } else {
-      console.error(e);
-      watchedState.rssForm.data.feedback = 'defaultErr';
-      watchedState.rssForm.dataStatus.link = 'invalid';
-    }
-  });
+      setTimeout(() => updateRSS(corsUrl, watchedState), 5000);
+    })
+    .catch((e) => {
+      watchedState.rssForm.status = 'error';
+      if (e instanceof yup.ValidationError) {
+        const [error] = e.errors;
+        watchedState.rssForm.data.feedback = error;
+        watchedState.rssForm.dataStatus.link = 'invalid';
+      } else if (e.name === 'ParseError') {
+        watchedState.rssForm.data.feedback = 'emptyDoc';
+        watchedState.rssForm.dataStatus.link = 'invalid';
+      } else if (e instanceof AxiosError) {
+        watchedState.rssForm.data.feedback = 'networkErr';
+        watchedState.rssForm.dataStatus.link = 'invalid';
+      } else {
+        console.error(e);
+        watchedState.rssForm.data.feedback = 'defaultErr';
+        watchedState.rssForm.dataStatus.link = 'invalid';
+      }
+    });
 
   closeBtnsModal.forEach((button) => {
     button.addEventListener('click', () => {
