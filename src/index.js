@@ -5,7 +5,9 @@ import onChange from 'on-change';
 import i18next from 'i18next';
 import axios, { AxiosError } from 'axios';
 import { buildFeeds, buildPosts, buildModal } from './view.js';
-import { getDataFromDoc, updateRSS, handleButtonClick, handleLinkClick } from './utils.js';
+import {
+  getDataFromDoc, updateRSS, handleButtonClick, handleLinkClick,
+} from './utils.js';
 
 yup.setLocale({
   string: {

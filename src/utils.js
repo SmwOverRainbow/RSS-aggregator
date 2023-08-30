@@ -70,4 +70,6 @@ const handleLinkClick = (element, state) => {
   }
 };
 
-export { getDataFromDoc, updateRSS, handleButtonClick, handleLinkClick };
+export {
+  getDataFromDoc, updateRSS, handleButtonClick, handleLinkClick,
+};
