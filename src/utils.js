@@ -55,4 +55,19 @@ const updateRSS = (url, state) => {
     });
 };
 
-export { getDataFromDoc, updateRSS };
+const handleButtonClick = (el, state) => {
+  const currentId = el.dataset.id;
+  state.modal.status = 'true';
+  state.modal.modalID = currentId;
+};
+
+const handleLinkClick = (element, state) => {
+  element.classList.remove('fw-bold');
+  element.classList.add('fw-normal', 'link-secondary');
+  const currentId = element.dataset.id;
+  if (!state.visitedLinksIds.includes(currentId)) {
+    state.visitedLinksIds.push(currentId);
+  }
+};
+
+export { getDataFromDoc, updateRSS, handleButtonClick, handleLinkClick };

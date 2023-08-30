@@ -5,7 +5,7 @@ import onChange from 'on-change';
 import i18next from 'i18next';
 import axios, { AxiosError } from 'axios';
 import { buildFeeds, buildPosts, buildModal } from './view.js';
-import { getDataFromDoc, updateRSS } from './utils.js';
+import { getDataFromDoc, updateRSS, handleButtonClick, handleLinkClick } from './utils.js';
 
 yup.setLocale({
   string: {
@@ -86,12 +86,12 @@ const watchedState = onChange(state, (path, value) => {
     buildPosts(state.posts, state.visitedLinksIds);
     const modalButtons = document.querySelectorAll('.btn-sm');
     modalButtons.forEach((button) => {
-      button.addEventListener('click', () => handleButtonClick(button));
+      button.addEventListener('click', () => handleButtonClick(button, watchedState));
     });
 
     const linksPosts = document.querySelectorAll('.posts a');
     linksPosts.forEach((link) => {
-      link.addEventListener('click', () => handleLinkClick(link));
+      link.addEventListener('click', () => handleLinkClick(link, watchedState));
     });
   }
   if (path === 'rssForm.status') {
@@ -119,21 +119,6 @@ const watchedState = onChange(state, (path, value) => {
     buildModal(state.modal.modalID, state.posts, state.visitedLinksIds);
   }
 });
-
-const handleButtonClick = (el) => {
-  const currentId = el.dataset.id;
-  watchedState.modal.status = 'true';
-  watchedState.modal.modalID = currentId;
-};
-
-const handleLinkClick = (element) => {
-  element.classList.remove('fw-bold');
-  element.classList.add('fw-normal', 'link-secondary');
-  const currentId = element.dataset.id;
-  if (!watchedState.visitedLinksIds.includes(currentId)) {
-    watchedState.visitedLinksIds.push(currentId);
-  }
-};
 
 form.addEventListener('submit', (event) => {
   event.preventDefault();

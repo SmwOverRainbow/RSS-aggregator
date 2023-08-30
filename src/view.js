@@ -36,8 +36,8 @@ const buildPosts = (arrPosts, arrVisitedLinks) => {
 
   const list = postsContainer.querySelector('.list-group');
   arrPosts.forEach(({
-    title, link, description, id
-    }) => {
+    title, link, description, id,
+  }) => {
     console.log(title, link, description);
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
@@ -74,7 +74,7 @@ const getFormatVisitedLink = (id) => {
 const buildModal = (modId, arrPosts, arrVisitedLinksIds) => {
   const [{
     title, link, description, id,
-    }] = arrPosts.filter((el) => el.id === modId);
+  }] = arrPosts.filter((el) => el.id === modId);
   getFormatVisitedLink(id);
   if (!arrVisitedLinksIds.includes(id)) {
     arrVisitedLinksIds.push(id);
