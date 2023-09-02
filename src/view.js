@@ -26,6 +26,29 @@ const buildFeeds = (arrFeeds) => {
   });
 };
 
+const buildOnePost = (obj, arrLinks, t) => {
+  const { title, link, id } = obj;
+  const li = document.createElement('li');
+  li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
+  const a = document.createElement('a');
+  arrLinks.includes(id) ? a.classList.add('fw-normal', 'link-secondary') : a.classList.add('fw-bold');
+  a.setAttribute('href', link);
+  a.setAttribute('data-id', id);
+  a.setAttribute('target', '_blank');
+  a.setAttribute('rel', 'noopener noreferrer');
+  a.textContent = title;
+  const button = document.createElement('button');
+  button.setAttribute('type', 'button');
+  button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
+  button.setAttribute('data-id', id);
+  button.setAttribute('data-bs-toggle', 'modal');
+  button.setAttribute('data-bs-target', '#modal');
+  button.textContent = t('showModalBtn');
+  li.append(a);
+  li.append(button);
+  return li;
+};
+
 const buildPosts = (arrPosts, arrVisitedLinks, translate) => {
   const postsContainer = document.querySelector('div.posts');
   postsContainer.innerHTML = `<div class="card border-0">
@@ -37,32 +60,8 @@ const buildPosts = (arrPosts, arrVisitedLinks, translate) => {
   </div>`;
 
   const list = postsContainer.querySelector('.list-group');
-  arrPosts.forEach(({
-    title, link, description, id,
-  }) => {
-    console.log(title, link, description);
-    const li = document.createElement('li');
-    li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
-    const a = document.createElement('a');
-    if (arrVisitedLinks.includes(id)) {
-      a.classList.add('fw-normal', 'link-secondary');
-    } else {
-      a.classList.add('fw-bold');
-    }
-    a.setAttribute('href', link);
-    a.setAttribute('data-id', id);
-    a.setAttribute('target', '_blank');
-    a.setAttribute('rel', 'noopener noreferrer');
-    a.textContent = title;
-    const button = document.createElement('button');
-    button.setAttribute('type', 'button');
-    button.classList.add('btn', 'btn-outline-primary', 'btn-sm');
-    button.setAttribute('data-id', id);
-    button.setAttribute('data-bs-toggle', 'modal');
-    button.setAttribute('data-bs-target', '#modal');
-    button.textContent = translate('showModalBtn');
-    li.append(a);
-    li.append(button);
+  arrPosts.forEach((post) => {
+    const li = buildOnePost(post, arrVisitedLinks, translate);
     list.append(li);
   });
 };
