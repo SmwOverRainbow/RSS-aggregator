@@ -1,3 +1,5 @@
+import 'bootstrap';
+
 const buildFeeds = (arrFeeds) => {
   const feedsContainer = document.querySelector('div.feeds');
   feedsContainer.innerHTML = `<div class="card border-0">
@@ -80,10 +82,6 @@ const buildModal = (modId, arrPosts, arrVisitedLinksIds) => {
     arrVisitedLinksIds.push(id);
   }
   const modalContainer = document.getElementById('modal');
-  modalContainer.classList.add('show');
-  modalContainer.setAttribute('style', 'display: block;');
-  modalContainer.removeAttribute('aria-hidden');
-  modalContainer.setAttribute('aria-modal', 'true');
 
   const modalTitle = modalContainer.querySelector('.modal-title');
   modalTitle.textContent = title;

@@ -1,32 +1,5 @@
 import axios from 'axios';
-
-const getDataFromDoc = (doc) => {
-  const result = {
-    feed: {},
-    posts: [],
-  };
-
-  result.feed.title = doc.querySelector('channel > title').textContent;
-  result.feed.description = doc.querySelector('channel > description').textContent;
-  result.feed.id = doc.querySelector('channel > link').textContent.toString();
-
-  const items = Array.from(doc.querySelectorAll('channel > item'));
-  result.posts = items.map((el) => {
-    const title = el.querySelector('title').textContent;
-    const link = el.querySelector('link').textContent;
-    const description = el.querySelector('description').textContent;
-    const id = el.querySelector('guid').textContent.toString();
-    const post = {
-      title,
-      link,
-      description,
-      id,
-    };
-    return post;
-  });
-
-  return result;
-};
+import { getDataFromDoc } from './parser.js';
 
 const updateRSS = (url, state) => {
   axios.get(url)
@@ -70,6 +43,13 @@ const handleLinkClick = (element, state) => {
   }
 };
 
+const addProxy = (url) => {
+  const urlWithProxy = new URL('/get', 'https://allorigins.hexlet.app');
+  urlWithProxy.searchParams.set('url', url);
+  urlWithProxy.searchParams.set('disableCache', 'true');
+  return urlWithProxy.toString();
+};
+
 export {
-  getDataFromDoc, updateRSS, handleButtonClick, handleLinkClick,
+  updateRSS, handleButtonClick, handleLinkClick, addProxy,
 };
