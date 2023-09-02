@@ -1,5 +1,10 @@
 import 'bootstrap';
 
+const form = document.querySelector('.rss-form');
+const input = document.getElementById('url-input');
+const feedbackEl = document.querySelector('.feedback');
+const submitBtn = form.querySelector('button');
+
 const buildFeeds = (arrFeeds) => {
   const feedsContainer = document.querySelector('div.feeds');
   feedsContainer.innerHTML = `<div class="card border-0">
@@ -31,7 +36,8 @@ const buildOnePost = (obj, arrLinks, t) => {
   const li = document.createElement('li');
   li.classList.add('list-group-item', 'd-flex', 'justify-content-between', 'align-items-start', 'border-0', 'border-end-0');
   const a = document.createElement('a');
-  arrLinks.includes(id) ? a.classList.add('fw-normal', 'link-secondary') : a.classList.add('fw-bold');
+  const classnames = arrLinks.includes(id) ? ['fw-normal', 'link-secondary'] : ['fw-bold'];
+  a.classList.add(...classnames);
   a.setAttribute('href', link);
   a.setAttribute('data-id', id);
   a.setAttribute('target', '_blank');
@@ -66,6 +72,31 @@ const buildPosts = (arrPosts, arrVisitedLinks, translate) => {
   });
 };
 
+const buildFeedback = (value) => feedbackEl.textContent = value;
+
+const buildFeedbackStatus = (linkStatus) => {
+  if (linkStatus === 'invalid') {
+    input.classList.add('is-invalid');
+    feedbackEl.classList.add('text-danger');
+  } else {
+    input.value = '';
+    input.focus();
+    input.classList.remove('is-invalid');
+    feedbackEl.classList.remove('text-danger');
+    feedbackEl.classList.add('text-success');
+  }
+};
+
+const buildRssFormStatus = (rssFormStatus) => {
+  if (rssFormStatus === 'pending') {
+    input.setAttribute('readonly', 'true');
+    submitBtn.setAttribute('disabled', 'true');
+  } else {
+    input.removeAttribute('readonly');
+    submitBtn.removeAttribute('disabled');
+  }
+};
+
 const getFormatVisitedLink = (id) => {
   const linkPost = document.querySelector(`[data-id="${id}"]`);
   linkPost.classList.remove('fw-bold');
@@ -90,4 +121,6 @@ const buildModal = (modId, arrPosts, arrVisitedLinksIds) => {
   modalLink.setAttribute('href', link);
 };
 
-export { buildFeeds, buildPosts, buildModal };
+export {
+  buildFeeds, buildPosts, buildModal, buildFeedback, buildFeedbackStatus, buildRssFormStatus,
+};
