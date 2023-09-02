@@ -121,7 +121,7 @@ const app = (translate) => {
     }
     if (e.target.tagName === 'BUTTON') {
       console.log(e.target);
-      handleButtonClick(e.target, watchedState)
+      handleButtonClick(e.target, watchedState);
     }
   });
 };

@@ -72,7 +72,7 @@ const buildPosts = (arrPosts, arrVisitedLinks, translate) => {
   });
 };
 
-const buildFeedback = (value) => feedbackEl.textContent = value;
+const buildFeedback = (value) => { feedbackEl.textContent = value };
 
 const buildFeedbackStatus = (linkStatus) => {
   if (linkStatus === 'invalid') {
