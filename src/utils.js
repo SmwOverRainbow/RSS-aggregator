@@ -1,26 +1,35 @@
 import axios from 'axios';
-import { getDataFromDoc } from './parser.js';
+import { getDataFromDoc, getParseDoc } from './parser.js';
 
-const updateRSS = (url, state) => {
-  axios.get(url)
-    .then((resp) => {
-      const parser = new DOMParser();
-      const parsedDoc = parser.parseFromString(resp.data.contents, 'application/xml');
-      const parsererror = parsedDoc.querySelector('parsererror');
+const addProxy = (url) => {
+  const urlWithProxy = new URL('/get', 'https://allorigins.hexlet.app');
+  urlWithProxy.searchParams.set('url', url);
+  urlWithProxy.searchParams.set('disableCache', 'true');
+  return urlWithProxy.toString();
+};
 
-      if (parsererror) {
-        const err = new Error('Document is empty');
-        err.name = 'ParseError';
-        throw err;
-      }
+const handleResponce = (rssResp, state) => {
+  const parsedDoc = getParseDoc(rssResp.data.contents, 'application/xml');
+  const parsererror = parsedDoc.querySelector('parsererror');
+  if (parsererror) {
+    const err = new Error('Document is empty');
+    err.name = 'ParseError';
+    throw err;
+  }
+  const dataDoc = getDataFromDoc(parsedDoc);
+  const postsStateIds = state.posts.map((element) => element.id);
+  const newPosts = dataDoc.posts.filter((el) => !postsStateIds.includes(el.id));
+  state.posts = [...newPosts, ...state.posts];
+};
 
-      const dataDoc = getDataFromDoc(parsedDoc);
-      const postsStateIds = state.posts.map((element) => element.id);
-      const newPosts = dataDoc.posts.filter((el) => !postsStateIds.includes(el.id));
-
-      state.posts = [...newPosts, ...state.posts];
-
-      setTimeout(() => updateRSS(url, state), 5000);
+const updateAllRSS = (state) => {
+  const promisesResp = state.rssLinks.map((link) => axios.get(addProxy(link)));
+  Promise.all(promisesResp)
+    .then((responces) => {
+      responces.forEach((el) => {
+        handleResponce(el, state);
+      });
+      setTimeout(() => updateAllRSS(state), 5000);
     })
     .catch((e) => {
       console.error(e);
@@ -43,13 +52,6 @@ const handleLinkClick = (element, state) => {
   }
 };
 
-const addProxy = (url) => {
-  const urlWithProxy = new URL('/get', 'https://allorigins.hexlet.app');
-  urlWithProxy.searchParams.set('url', url);
-  urlWithProxy.searchParams.set('disableCache', 'true');
-  return urlWithProxy.toString();
-};
-
 export {
-  updateRSS, handleButtonClick, handleLinkClick, addProxy,
+  handleButtonClick, handleLinkClick, addProxy, updateAllRSS,
 };

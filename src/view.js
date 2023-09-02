@@ -26,7 +26,7 @@ const buildFeeds = (arrFeeds) => {
   });
 };
 
-const buildPosts = (arrPosts, arrVisitedLinks) => {
+const buildPosts = (arrPosts, arrVisitedLinks, translate) => {
   const postsContainer = document.querySelector('div.posts');
   postsContainer.innerHTML = `<div class="card border-0">
     <div class="card-body">
@@ -60,7 +60,7 @@ const buildPosts = (arrPosts, arrVisitedLinks) => {
     button.setAttribute('data-id', id);
     button.setAttribute('data-bs-toggle', 'modal');
     button.setAttribute('data-bs-target', '#modal');
-    button.textContent = 'Просмотр';
+    button.textContent = translate('showModalBtn');
     li.append(a);
     li.append(button);
     list.append(li);
