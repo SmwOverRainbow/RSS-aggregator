@@ -114,13 +114,10 @@ const app = (translate) => {
 
   const postsContainer = document.querySelector('.posts');
   postsContainer.addEventListener('click', (e) => {
-    console.log(e.target.tagName);
     if (e.target.tagName === 'A') {
-      console.log(e.target);
       handleLinkClick(e.target, watchedState);
     }
     if (e.target.tagName === 'BUTTON') {
-      console.log(e.target);
       handleButtonClick(e.target, watchedState);
     }
   });
