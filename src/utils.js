@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getDataFromDoc, getParseDoc } from './parser.js';
+import getParsedData from './parser.js';
 
 const addProxy = (url) => {
   const urlWithProxy = new URL('/get', 'https://allorigins.hexlet.app');
@@ -9,14 +9,7 @@ const addProxy = (url) => {
 };
 
 const handleResponce = (rssResp, state) => {
-  const parsedDoc = getParseDoc(rssResp.data.contents, 'application/xml');
-  const parsererror = parsedDoc.querySelector('parsererror');
-  if (parsererror) {
-    const err = new Error('Document is empty');
-    err.name = 'ParseError';
-    throw err;
-  }
-  const dataDoc = getDataFromDoc(parsedDoc);
+  const dataDoc = getParsedData(rssResp.data.contents, 'application/xml');
   const postsStateIds = state.posts.map((element) => element.id);
   const newPosts = dataDoc.posts.filter((el) => !postsStateIds.includes(el.id));
   state.posts = [...newPosts, ...state.posts];

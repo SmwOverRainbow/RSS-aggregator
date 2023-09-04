@@ -32,4 +32,16 @@ const getDataFromDoc = (doc) => {
   return result;
 };
 
-export { getParseDoc, getDataFromDoc };
+const getParsedData = (stringData, mimeType) => {
+  const parsedDoc = getParseDoc(stringData, mimeType);
+  const parserError = parsedDoc.querySelector('parsererror');
+
+  if (parserError) {
+    const err = new Error(parserError.textContent);
+    err.name = 'ParseError';
+    throw err;
+  }
+  return getDataFromDoc(parsedDoc);
+};
+
+export default getParsedData;

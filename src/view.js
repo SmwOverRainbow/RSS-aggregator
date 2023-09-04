@@ -1,10 +1,5 @@
 import onChange from 'on-change';
 
-const form = document.querySelector('.rss-form');
-const input = document.getElementById('url-input');
-const feedbackEl = document.querySelector('.feedback');
-const submitBtn = form.querySelector('button');
-
 const buildFeeds = (arrFeeds, t) => {
   const titleFeeds = document.querySelector('.feeds .card-title');
   titleFeeds.textContent = t('feeds');
@@ -62,9 +57,10 @@ const buildPosts = (arrPosts, arrVisitedLinks, translate) => {
   });
 };
 
-const buildFeedback = (value) => { feedbackEl.textContent = value; };
+const buildFeedback = (value, elements) => { elements.feedbackEl.textContent = value; };
 
-const buildFeedbackStatus = (linkStatus) => {
+const buildFeedbackStatus = (linkStatus, elements) => {
+  const { input, feedbackEl } = elements;
   if (linkStatus === 'invalid') {
     input.classList.add('is-invalid');
     feedbackEl.classList.add('text-danger');
@@ -77,7 +73,8 @@ const buildFeedbackStatus = (linkStatus) => {
   }
 };
 
-const buildRssFormStatus = (rssFormStatus) => {
+const buildRssFormStatus = (rssFormStatus, elements) => {
+  const { input, submitBtn } = elements;
   if (rssFormStatus === 'pending') {
     input.setAttribute('readonly', 'true');
     submitBtn.setAttribute('disabled', 'true');
@@ -111,14 +108,14 @@ const buildModal = (modId, arrPosts, arrVisitedLinksIds) => {
   modalLink.setAttribute('href', link);
 };
 
-const getWatchedState = (translate, state) => {
+const getWatchedState = (translate, state, elements) => {
   const watchedState = onChange(state, (path, value) => {
     switch (path) {
       case 'rssForm.dataStatus.link':
-        buildFeedbackStatus(value);
+        buildFeedbackStatus(value, elements);
         break;
       case 'rssForm.data.feedback':
-        buildFeedback(translate(state.rssForm.data.feedback));
+        buildFeedback(translate(state.rssForm.data.feedback), elements);
         break;
       case 'feeds':
         buildFeeds(state.feeds, translate);
@@ -127,7 +124,7 @@ const getWatchedState = (translate, state) => {
         buildPosts(state.posts, state.visitedLinksIds, translate);
         break;
       case 'rssForm.status':
-        buildRssFormStatus(value);
+        buildRssFormStatus(value, elements);
         break;
       case 'modal.modalID':
         buildModal(state.modal.modalID, state.posts, state.visitedLinksIds);
