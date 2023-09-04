@@ -1,21 +1,16 @@
-import 'bootstrap';
+import onChange from 'on-change';
 
 const form = document.querySelector('.rss-form');
 const input = document.getElementById('url-input');
 const feedbackEl = document.querySelector('.feedback');
 const submitBtn = form.querySelector('button');
 
-const buildFeeds = (arrFeeds) => {
-  const feedsContainer = document.querySelector('div.feeds');
-  feedsContainer.innerHTML = `<div class="card border-0">
-      <div class="card-body">
-        <h2 class="card-title h4">Фиды</h2>
-      </div>
-      <ul class="list-group border-0 rounded-0">
-      </ul>
-    </div>`;
+const buildFeeds = (arrFeeds, t) => {
+  const titleFeeds = document.querySelector('.feeds .card-title');
+  titleFeeds.textContent = t('feeds');
 
-  const list = feedsContainer.querySelector('.list-group');
+  const list = document.querySelector('.feeds .list-group');
+  list.innerHTML = '';
   arrFeeds.forEach(({ title, description }) => {
     const li = document.createElement('li');
     li.classList.add('list-group-item', 'border-0', 'border-end-0');
@@ -56,16 +51,11 @@ const buildOnePost = (obj, arrLinks, t) => {
 };
 
 const buildPosts = (arrPosts, arrVisitedLinks, translate) => {
-  const postsContainer = document.querySelector('div.posts');
-  postsContainer.innerHTML = `<div class="card border-0">
-    <div class="card-body">
-      <h2 class="card-title h4">Посты</h2>
-    </div>
-    <ul class="list-group border-0 rounded-0">
-    </ul>
-  </div>`;
+  const titlePosts = document.querySelector('.posts .card-title');
+  titlePosts.textContent = translate('posts');
 
-  const list = postsContainer.querySelector('.list-group');
+  const list = document.querySelector('.posts .list-group');
+  list.innerHTML = '';
   arrPosts.forEach((post) => {
     const li = buildOnePost(post, arrVisitedLinks, translate);
     list.append(li);
@@ -121,6 +111,33 @@ const buildModal = (modId, arrPosts, arrVisitedLinksIds) => {
   modalLink.setAttribute('href', link);
 };
 
-export {
-  buildFeeds, buildPosts, buildModal, buildFeedback, buildFeedbackStatus, buildRssFormStatus,
+const getWatchedState = (translate, state) => {
+  const watchedState = onChange(state, (path, value) => {
+    switch (path) {
+      case 'rssForm.dataStatus.link':
+        buildFeedbackStatus(value);
+        break;
+      case 'rssForm.data.feedback':
+        buildFeedback(translate(state.rssForm.data.feedback));
+        break;
+      case 'feeds':
+        buildFeeds(state.feeds, translate);
+        break;
+      case 'posts':
+        buildPosts(state.posts, state.visitedLinksIds, translate);
+        break;
+      case 'rssForm.status':
+        buildRssFormStatus(value);
+        break;
+      case 'modal.modalID':
+        buildModal(state.modal.modalID, state.posts, state.visitedLinksIds);
+        break;
+      default:
+        break;
+    }
+  });
+
+  return watchedState;
 };
+
+export default getWatchedState;
