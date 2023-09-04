@@ -9,6 +9,8 @@ export default {
       success: 'RSS успешно загружен',
       networkErr: 'Ошибка сети',
       showModalBtn: 'Просмотр',
+      feeds: 'Фиды',
+      posts: 'Посты',
     },
   },
 };
