@@ -21,8 +21,7 @@ const updateAllRSS = (state) => {
     .catch((e) => {
       console.error(e);
       throw e;
-    }
-  ));
+    }));
   Promise.all(promisesResp)
     .finally(() => {
       setTimeout(() => updateAllRSS(state), 5000);
