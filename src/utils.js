@@ -16,7 +16,7 @@ const handleResponce = (rssResp, state) => {
 };
 
 const updateAllRSS = (state) => {
-  const promisesResp = state.rssLinks.map((link) => axios.get(addProxy(link))
+  const promisesResp = state.feeds.map((feed) => axios.get(addProxy(feed.url))
     .then((responce) => handleResponce(responce, state))
     .catch((e) => {
       console.error(e);
@@ -28,21 +28,4 @@ const updateAllRSS = (state) => {
     });
 };
 
-const handleButtonClick = (el, state) => {
-  const currentId = el.dataset.id;
-  state.modal.status = 'true';
-  state.modal.modalID = currentId;
-};
-
-const handleLinkClick = (element, state) => {
-  element.classList.remove('fw-bold');
-  element.classList.add('fw-normal', 'link-secondary');
-  const currentId = element.dataset.id;
-  if (!state.visitedLinksIds.includes(currentId)) {
-    state.visitedLinksIds.push(currentId);
-  }
-};
-
-export {
-  handleButtonClick, handleLinkClick, addProxy, updateAllRSS,
-};
+export { addProxy, updateAllRSS };

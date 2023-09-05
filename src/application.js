@@ -5,9 +5,7 @@ import axios, { AxiosError } from 'axios';
 import getParsedData from './parser.js';
 import resources from './locales/ru.js';
 import getWatchedState from './view.js';
-import {
-  handleButtonClick, handleLinkClick, addProxy, updateAllRSS,
-} from './utils.js';
+import { addProxy, updateAllRSS } from './utils.js';
 
 const app = () => {
   yup.setLocale({
@@ -44,7 +42,6 @@ const app = () => {
             feedback: '',
           },
         },
-        rssLinks: [],
         feeds: [],
         posts: [],
         visitedLinksIds: [],
@@ -61,11 +58,11 @@ const app = () => {
         const currentLink = elements.input.value;
         state.rssForm.data.link = currentLink;
         const corsUrl = addProxy(currentLink);
+        const links = state.feeds.map((feed) => feed.url);
 
-        const schema = yup.string().required().url().notOneOf(state.rssLinks);
+        const schema = yup.string().required().url().notOneOf(links);
         schema.validate(currentLink, { abortEarly: true })
           .then(() => {
-            state.rssLinks.push(currentLink);
             const response = axios.get(corsUrl);
             watchedState.loadingProcess = 'pending';
             return response;
@@ -74,7 +71,7 @@ const app = () => {
             watchedState.rssForm.data.feedback = 'success';
             watchedState.rssForm.status = 'valid';
             watchedState.loadingProcess = 'ok';
-            const dataDoc = getParsedData(response.data.contents, 'application/xml');
+            const dataDoc = getParsedData(response.data.contents, 'application/xml', currentLink);
             watchedState.feeds = [dataDoc.feed, ...watchedState.feeds];
             watchedState.posts = [...dataDoc.posts, ...watchedState.posts];
           })
@@ -83,29 +80,25 @@ const app = () => {
             if (e instanceof yup.ValidationError) {
               const [error] = e.errors;
               watchedState.rssForm.data.feedback = error;
-              watchedState.rssForm.status = 'invalid';
             } else if (e.name === 'ParseError') {
               watchedState.rssForm.data.feedback = 'emptyDoc';
-              watchedState.rssForm.status = 'invalid';
             } else if (e instanceof AxiosError) {
               watchedState.rssForm.data.feedback = 'networkErr';
-              watchedState.rssForm.status = 'invalid';
             } else {
               console.error(e);
               watchedState.rssForm.data.feedback = 'defaultErr';
-              watchedState.rssForm.status = 'invalid';
             }
+            watchedState.rssForm.status = 'invalid';
           });
       });
 
       const postsContainer = document.querySelector('.posts');
       postsContainer.addEventListener('click', (e) => {
-        if (e.target.tagName === 'A') {
-          handleLinkClick(e.target, watchedState);
+        if (!e.target.dataset.id) {
+          return;
         }
-        if (e.target.tagName === 'BUTTON') {
-          handleButtonClick(e.target, watchedState);
-        }
+        const currentId = e.target.dataset.id;
+        watchedState.modal.modalID = currentId;
       });
     });
 };

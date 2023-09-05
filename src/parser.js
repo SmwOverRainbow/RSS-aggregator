@@ -4,7 +4,7 @@ const getParseDoc = (stringData, mimeType) => {
   return parsedDocument;
 };
 
-const getDataFromDoc = (doc) => {
+const getDataFromDoc = (doc, url) => {
   const result = {
     feed: {},
     posts: [],
@@ -13,6 +13,7 @@ const getDataFromDoc = (doc) => {
   result.feed.title = doc.querySelector('channel > title').textContent;
   result.feed.description = doc.querySelector('channel > description').textContent;
   result.feed.id = doc.querySelector('channel > link').textContent.toString();
+  result.feed.url = url;
 
   const items = Array.from(doc.querySelectorAll('channel > item'));
   result.posts = items.map((el) => {
@@ -32,7 +33,7 @@ const getDataFromDoc = (doc) => {
   return result;
 };
 
-const getParsedData = (stringData, mimeType) => {
+const getParsedData = (stringData, mimeType, link) => {
   const parsedDoc = getParseDoc(stringData, mimeType);
   const parserError = parsedDoc.querySelector('parsererror');
 
@@ -41,7 +42,7 @@ const getParsedData = (stringData, mimeType) => {
     err.name = 'ParseError';
     throw err;
   }
-  return getDataFromDoc(parsedDoc);
+  return getDataFromDoc(parsedDoc, link);
 };
 
 export default getParsedData;
