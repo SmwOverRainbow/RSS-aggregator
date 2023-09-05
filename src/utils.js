@@ -16,14 +16,13 @@ const handleResponce = (rssResp, state) => {
 };
 
 const updateAllRSS = (state) => {
-  const promisesResp = state.rssLinks.map((link) => {
-    return axios.get(addProxy(link))
+  const promisesResp = state.rssLinks.map((link) => axios.get(addProxy(link))
       .then((responce) => handleResponce(responce, state))
       .catch((e) => {
         console.error(e);
         throw e;
-      });
-  });
+      })
+  );
   Promise.all(promisesResp)
     .finally(() => {
       setTimeout(() => updateAllRSS(state), 5000);
