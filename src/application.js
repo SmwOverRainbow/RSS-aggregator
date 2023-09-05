@@ -36,14 +36,12 @@ const app = () => {
   })
     .then((translate) => {
       const state = {
+        loadingProcess: '',
         rssForm: {
           status: '',
           data: {
             link: '',
             feedback: '',
-          },
-          dataStatus: {
-            link: '',
           },
         },
         rssLinks: [],
@@ -69,33 +67,33 @@ const app = () => {
           .then(() => {
             state.rssLinks.push(currentLink);
             const response = axios.get(corsUrl);
-            watchedState.rssForm.status = 'pending';
+            watchedState.loadingProcess = 'pending';
             return response;
           })
           .then((response) => {
             watchedState.rssForm.data.feedback = 'success';
-            watchedState.rssForm.dataStatus.link = 'valid';
-            watchedState.rssForm.status = 'ok';
+            watchedState.rssForm.status = 'valid';
+            watchedState.loadingProcess = 'ok';
             const dataDoc = getParsedData(response.data.contents, 'application/xml');
             watchedState.feeds = [dataDoc.feed, ...watchedState.feeds];
             watchedState.posts = [...dataDoc.posts, ...watchedState.posts];
           })
           .catch((e) => {
-            watchedState.rssForm.status = 'error';
+            watchedState.loadingProcess = 'error';
             if (e instanceof yup.ValidationError) {
               const [error] = e.errors;
               watchedState.rssForm.data.feedback = error;
-              watchedState.rssForm.dataStatus.link = 'invalid';
+              watchedState.rssForm.status = 'invalid';
             } else if (e.name === 'ParseError') {
               watchedState.rssForm.data.feedback = 'emptyDoc';
-              watchedState.rssForm.dataStatus.link = 'invalid';
+              watchedState.rssForm.status = 'invalid';
             } else if (e instanceof AxiosError) {
               watchedState.rssForm.data.feedback = 'networkErr';
-              watchedState.rssForm.dataStatus.link = 'invalid';
+              watchedState.rssForm.status = 'invalid';
             } else {
               console.error(e);
               watchedState.rssForm.data.feedback = 'defaultErr';
-              watchedState.rssForm.dataStatus.link = 'invalid';
+              watchedState.rssForm.status = 'invalid';
             }
           });
       });

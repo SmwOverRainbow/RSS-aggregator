@@ -73,7 +73,7 @@ const buildFeedbackStatus = (linkStatus, elements) => {
   }
 };
 
-const buildRssFormStatus = (rssFormStatus, elements) => {
+const buildLoadingProcess = (rssFormStatus, elements) => {
   const { input, submitBtn } = elements;
   if (rssFormStatus === 'pending') {
     input.setAttribute('readonly', 'true');
@@ -111,7 +111,7 @@ const buildModal = (modId, arrPosts, arrVisitedLinksIds) => {
 const getWatchedState = (translate, state, elements) => {
   const watchedState = onChange(state, (path, value) => {
     switch (path) {
-      case 'rssForm.dataStatus.link':
+      case 'rssForm.status':
         buildFeedbackStatus(value, elements);
         break;
       case 'rssForm.data.feedback':
@@ -123,8 +123,8 @@ const getWatchedState = (translate, state, elements) => {
       case 'posts':
         buildPosts(state.posts, state.visitedLinksIds, translate);
         break;
-      case 'rssForm.status':
-        buildRssFormStatus(value, elements);
+      case 'loadingProcess':
+        buildLoadingProcess(value, elements);
         break;
       case 'modal.modalID':
         buildModal(state.modal.modalID, state.posts, state.visitedLinksIds);

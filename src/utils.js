@@ -16,18 +16,30 @@ const handleResponce = (rssResp, state) => {
 };
 
 const updateAllRSS = (state) => {
-  const promisesResp = state.rssLinks.map((link) => axios.get(addProxy(link)));
-  Promise.all(promisesResp)
-    .then((responces) => {
-      responces.forEach((el) => {
-        handleResponce(el, state);
+  const promisesResp = state.rssLinks.map((link) => {
+    axios.get(addProxy(link))
+      .then((responce) => {
+        handleResponce(responce, state);
+      })
+      .catch((e) => {
+        console.error(e);
+        throw e;
       });
+  });
+  Promise.all(promisesResp)
+    .finally(() => {
       setTimeout(() => updateAllRSS(state), 5000);
-    })
-    .catch((e) => {
-      console.error(e);
-      throw e;
     });
+    // .then((responces) => {
+    //   responces.forEach((el) => {
+    //     handleResponce(el, state);
+    //   });
+    //   setTimeout(() => updateAllRSS(state), 5000);
+    // })
+    // .catch((e) => {
+    //   console.error(e);
+    //   throw e;
+    // });
 };
 
 const handleButtonClick = (el, state) => {
