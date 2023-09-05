@@ -17,10 +17,8 @@ const handleResponce = (rssResp, state) => {
 
 const updateAllRSS = (state) => {
   const promisesResp = state.rssLinks.map((link) => {
-    axios.get(addProxy(link))
-      .then((responce) => {
-        return handleResponce(responce, state);
-      })
+    return axios.get(addProxy(link))
+      .then((responce) => handleResponce(responce, state))
       .catch((e) => {
         console.error(e);
         throw e;
