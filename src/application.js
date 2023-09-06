@@ -1,11 +1,11 @@
 import './scss/styles.scss';
 import i18n from 'i18next';
 import * as yup from 'yup';
-import axios, { AxiosError } from 'axios';
+import axios from 'axios';
 import getParsedData from './parser.js';
 import resources from './locales/ru.js';
 import getWatchedState from './view.js';
-import { addProxy, updateAllRSS } from './utils.js';
+import { addProxy, identifyError, updateAllRSS } from './utils.js';
 
 const app = () => {
   yup.setLocale({
@@ -34,11 +34,10 @@ const app = () => {
   })
     .then((translate) => {
       const state = {
-        loadingProcess: '',
+        loadingProcess: 'ok',
         rssForm: {
-          status: '',
+          valid: true,
           data: {
-            link: '',
             feedback: '',
           },
         },
@@ -56,7 +55,6 @@ const app = () => {
       elements.form.addEventListener('submit', (event) => {
         event.preventDefault();
         const currentLink = elements.input.value;
-        state.rssForm.data.link = currentLink;
         const corsUrl = addProxy(currentLink);
         const links = state.feeds.map((feed) => feed.url);
 
@@ -68,27 +66,18 @@ const app = () => {
             return response;
           })
           .then((response) => {
-            watchedState.rssForm.data.feedback = 'success';
-            watchedState.rssForm.status = 'valid';
+            watchedState.rssForm.valid = true;
+            watchedState.rssForm.data.feedback = translate('success');
             watchedState.loadingProcess = 'ok';
-            const dataDoc = getParsedData(response.data.contents, 'application/xml', currentLink);
-            watchedState.feeds = [dataDoc.feed, ...watchedState.feeds];
+            const dataDoc = getParsedData(response.data.contents, 'application/xml');
+            const feed = { url: currentLink, ...dataDoc.feed };
+            watchedState.feeds = [feed, ...watchedState.feeds];
             watchedState.posts = [...dataDoc.posts, ...watchedState.posts];
           })
           .catch((e) => {
             watchedState.loadingProcess = 'error';
-            if (e instanceof yup.ValidationError) {
-              const [error] = e.errors;
-              watchedState.rssForm.data.feedback = error;
-            } else if (e.name === 'ParseError') {
-              watchedState.rssForm.data.feedback = 'emptyDoc';
-            } else if (e instanceof AxiosError) {
-              watchedState.rssForm.data.feedback = 'networkErr';
-            } else {
-              console.error(e);
-              watchedState.rssForm.data.feedback = 'defaultErr';
-            }
-            watchedState.rssForm.status = 'invalid';
+            watchedState.rssForm.valid = false;
+            identifyError(e, watchedState, translate);
           });
       });
 

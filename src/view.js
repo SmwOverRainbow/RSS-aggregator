@@ -57,20 +57,17 @@ const buildPosts = (arrPosts, arrVisitedLinks, translate) => {
   });
 };
 
-const buildFeedback = (value, elements) => { elements.feedbackEl.textContent = value; };
-
-const buildFeedbackStatus = (linkStatus, elements) => {
+const buildFeedback = (state, elements) => {
   const { input, feedbackEl } = elements;
-  if (linkStatus === 'invalid') {
+  if (!state.rssForm.valid) {
     input.classList.add('is-invalid');
     feedbackEl.classList.add('text-danger');
   } else {
-    input.value = '';
-    input.focus();
     input.classList.remove('is-invalid');
     feedbackEl.classList.remove('text-danger');
     feedbackEl.classList.add('text-success');
   }
+  feedbackEl.textContent = state.rssForm.data.feedback;
 };
 
 const buildLoadingProcess = (rssFormStatus, elements) => {
@@ -79,6 +76,8 @@ const buildLoadingProcess = (rssFormStatus, elements) => {
     input.setAttribute('readonly', 'true');
     submitBtn.setAttribute('disabled', 'true');
   } else {
+    input.value = '';
+    input.focus();
     input.removeAttribute('readonly');
     submitBtn.removeAttribute('disabled');
   }
@@ -111,11 +110,8 @@ const buildModal = (modId, arrPosts, arrVisitedLinksIds) => {
 const getWatchedState = (translate, state, elements) => {
   const watchedState = onChange(state, (path, value) => {
     switch (path) {
-      case 'rssForm.status':
-        buildFeedbackStatus(value, elements);
-        break;
       case 'rssForm.data.feedback':
-        buildFeedback(translate(state.rssForm.data.feedback), elements);
+        buildFeedback(state, elements);
         break;
       case 'feeds':
         buildFeeds(state.feeds, translate);

@@ -1,4 +1,5 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
+import * as yup from 'yup';
 import getParsedData from './parser.js';
 
 const addProxy = (url) => {
@@ -28,4 +29,18 @@ const updateAllRSS = (state) => {
     });
 };
 
-export { addProxy, updateAllRSS };
+const identifyError = (err, state, translate) => {
+  if (err instanceof yup.ValidationError) {
+    const [error] = err.errors;
+    state.rssForm.data.feedback = translate(error);
+  } else if (err.name === 'ParseError') {
+    state.rssForm.data.feedback = translate('emptyDoc');
+  } else if (err instanceof AxiosError) {
+    state.rssForm.data.feedback = translate('networkErr');
+  } else {
+    console.error(err);
+    state.rssForm.data.feedback = translate('defaultErr');
+  }
+};
+
+export { addProxy, updateAllRSS, identifyError };
