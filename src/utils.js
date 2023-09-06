@@ -32,14 +32,14 @@ const updateAllRSS = (state) => {
 const identifyError = (err, state, translate) => {
   if (err instanceof yup.ValidationError) {
     const [error] = err.errors;
-    state.rssForm.data.feedback = translate(error);
+    state.rssForm.feedback = translate(error);
   } else if (err.name === 'ParseError') {
-    state.rssForm.data.feedback = translate('emptyDoc');
+    state.rssForm.feedback = translate('emptyDoc');
   } else if (err instanceof AxiosError) {
-    state.rssForm.data.feedback = translate('networkErr');
+    state.rssForm.feedback = translate('networkErr');
   } else {
     console.error(err);
-    state.rssForm.data.feedback = translate('defaultErr');
+    state.rssForm.feedback = translate('defaultErr');
   }
 };
 

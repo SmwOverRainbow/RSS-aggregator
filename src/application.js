@@ -34,12 +34,10 @@ const app = () => {
   })
     .then((translate) => {
       const state = {
-        loadingProcess: 'ok',
+        loadingProcess: '',
         rssForm: {
           valid: true,
-          data: {
-            feedback: '',
-          },
+          feedback: '',
         },
         feeds: [],
         posts: [],
@@ -67,9 +65,9 @@ const app = () => {
           })
           .then((response) => {
             watchedState.rssForm.valid = true;
-            watchedState.rssForm.data.feedback = translate('success');
-            watchedState.loadingProcess = 'ok';
+            watchedState.rssForm.feedback = translate('success');
             const dataDoc = getParsedData(response.data.contents, 'application/xml');
+            watchedState.loadingProcess = 'ok';
             const feed = { url: currentLink, ...dataDoc.feed };
             watchedState.feeds = [feed, ...watchedState.feeds];
             watchedState.posts = [...dataDoc.posts, ...watchedState.posts];

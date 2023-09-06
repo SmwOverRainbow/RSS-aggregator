@@ -67,19 +67,28 @@ const buildFeedback = (state, elements) => {
     feedbackEl.classList.remove('text-danger');
     feedbackEl.classList.add('text-success');
   }
-  feedbackEl.textContent = state.rssForm.data.feedback;
+  feedbackEl.textContent = state.rssForm.feedback;
 };
 
 const buildLoadingProcess = (rssFormStatus, elements) => {
   const { input, submitBtn } = elements;
-  if (rssFormStatus === 'pending') {
-    input.setAttribute('readonly', 'true');
-    submitBtn.setAttribute('disabled', 'true');
-  } else {
-    input.value = '';
-    input.focus();
-    input.removeAttribute('readonly');
-    submitBtn.removeAttribute('disabled');
+  switch (rssFormStatus) {
+    case 'pending':
+      input.setAttribute('readonly', 'true');
+      submitBtn.setAttribute('disabled', 'true');
+      break;
+    case 'error':
+      input.removeAttribute('readonly');
+      submitBtn.removeAttribute('disabled');
+      break;
+    case 'ok':
+      input.value = '';
+      input.focus();
+      input.removeAttribute('readonly');
+      submitBtn.removeAttribute('disabled');
+      break;
+    default:
+      break;
   }
 };
 
@@ -110,7 +119,7 @@ const buildModal = (modId, arrPosts, arrVisitedLinksIds) => {
 const getWatchedState = (translate, state, elements) => {
   const watchedState = onChange(state, (path, value) => {
     switch (path) {
-      case 'rssForm.data.feedback':
+      case 'rssForm.feedback':
         buildFeedback(state, elements);
         break;
       case 'feeds':
